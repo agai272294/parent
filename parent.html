@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        /* 样式保持不变（略）—— 为节省篇幅，此处省略，请使用之前的完整样式 */
         * {
             margin: 0;
             padding: 0;
@@ -195,13 +196,11 @@
     <h1><i class="fas fa-paw"></i> 星际宠物档案馆 <i class="fas fa-dragon"></i></h1>
     <div class="sub">✨ 家长登录 · 查看孩子专属宠物档案 ✨</div>
 
-    <!-- 标签页切换 -->
     <div class="tab-bar">
         <button id="tabLoginBtn" class="tab-btn active">登录</button>
         <button id="tabRegisterBtn" class="tab-btn">注册账号</button>
     </div>
 
-    <!-- 登录界面 -->
     <div id="loginPanel">
         <div class="input-group">
             <input type="email" id="loginEmail" placeholder="家长邮箱（注册时填写）" autocomplete="email">
@@ -211,7 +210,6 @@
         <div class="hint">首次使用请先注册账号，注册时需要填写孩子真实姓名。</div>
     </div>
 
-    <!-- 注册界面 -->
     <div id="registerPanel" class="hidden">
         <div class="input-group">
             <input type="email" id="regEmail" placeholder="家长邮箱" autocomplete="email">
@@ -222,7 +220,6 @@
         </div>
     </div>
 
-    <!-- 宠物展示界面（登录成功后） -->
     <div id="petPanel" class="hidden">
         <div id="petResult" class="result-card"></div>
         <div class="flex-btns">
@@ -241,12 +238,19 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_7s1d64U0Yr9FZz65q3oDFA_9I-t-zPx';
     // =====================================================
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // 确保只初始化一次
+    let supabaseClient = null;
+    if (!window._supabaseClient) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        window._supabaseClient = supabaseClient;
+    } else {
+        supabaseClient = window._supabaseClient;
+    }
 
     // 全局变量
     let currentStudent = null;
 
-    // ========== 经验表：与 classroom_manager 完全一致的动态生成逻辑 ==========
+    // 经验表动态生成
     const MAX_LEVEL = 25;
     const EXP_TABLE = [0];
     let cumulative = 0;
@@ -257,14 +261,12 @@
         if (lv + 1 >= 5) need += 250;
         cumulative += need;
     }
-    // =================================================================
 
     function getNextExp(level, exp) {
         if (level >= MAX_LEVEL) return exp;
         return EXP_TABLE[level + 1];
     }
 
-    // 渲染宠物信息
     function renderPetInfo(pet) {
         const level = pet.level;
         const exp = pet.exp;
@@ -299,7 +301,6 @@
         document.getElementById('petResult').innerHTML = html;
     }
 
-    // 显示宠物面板
     async function showPetPanel() {
         document.getElementById('loginPanel').classList.add('hidden');
         document.getElementById('registerPanel').classList.add('hidden');
@@ -307,12 +308,12 @@
         document.getElementById('errorMsg').innerHTML = '';
         document.getElementById('successMsg').innerHTML = '';
 
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { user } } = await supabaseClient.auth.getUser();
         if (!user) {
             logout();
             return;
         }
-        const { data: profile, error: profileError } = await supabase
+        const { data: profile, error: profileError } = await supabaseClient
             .from('profiles')
             .select('student_name')
             .eq('id', user.id)
@@ -324,7 +325,7 @@
         }
         currentStudent = profile.student_name;
 
-        const { data: pet, error: petError } = await supabase
+        const { data: pet, error: petError } = await supabaseClient
             .from('pets')
             .select('*')
             .eq('student_name', currentStudent)
@@ -337,7 +338,6 @@
         renderPetInfo(pet);
     }
 
-    // 登录函数
     async function login() {
         const email = document.getElementById('loginEmail').value.trim();
         const password = document.getElementById('loginPassword').value;
@@ -350,10 +350,7 @@
         }
 
         try {
-            const { error } = await supabase.auth.signInWithPassword({
-                email: email,
-                password: password
-            });
+            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
             if (error) throw error;
             await showPetPanel();
         } catch (error) {
@@ -361,7 +358,6 @@
         }
     }
 
-    // 注册函数
     async function register() {
         const email = document.getElementById('regEmail').value.trim();
         const password = document.getElementById('regPassword').value;
@@ -381,14 +377,10 @@
         }
 
         try {
-            const { error } = await supabase.auth.signUp({
-                email: email,
-                password: password,
-                options: {
-                    data: {
-                        student_name: studentName
-                    }
-                }
+            const { error } = await supabaseClient.auth.signUp({
+                email,
+                password,
+                options: { data: { student_name: studentName } }
             });
             if (error) throw error;
             successDiv.innerHTML = '注册成功！请返回登录页面使用邮箱登录。';
@@ -400,9 +392,8 @@
         }
     }
 
-    // 退出登录
     async function logout() {
-        await supabase.auth.signOut();
+        await supabaseClient.auth.signOut();
         currentStudent = null;
         document.getElementById('loginPanel').classList.remove('hidden');
         document.getElementById('registerPanel').classList.add('hidden');
@@ -433,7 +424,7 @@
     }
 
     async function checkSession() {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { user } } = await supabaseClient.auth.getUser();
         if (user) {
             await showPetPanel();
         } else {
@@ -447,12 +438,8 @@
         document.getElementById('logoutBtn').addEventListener('click', logout);
         document.getElementById('tabLoginBtn').addEventListener('click', showLoginTab);
         document.getElementById('tabRegisterBtn').addEventListener('click', showRegisterTab);
-        document.getElementById('loginPassword').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') login();
-        });
-        document.getElementById('regPassword').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') register();
-        });
+        document.getElementById('loginPassword').addEventListener('keypress', (e) => { if (e.key === 'Enter') login(); });
+        document.getElementById('regPassword').addEventListener('keypress', (e) => { if (e.key === 'Enter') register(); });
     }
 
     bindEvents();
