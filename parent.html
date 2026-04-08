@@ -3,44 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>✨ 星际宠物档案馆 · 家长登录 ✨</title>
-    <!-- 使用国内备选 CDN，避免被墙 -->
-    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>星际宠物档案馆</title>
     <style>
-        /* 完整内联样式（确保即使外部CSS失败也能显示基本布局） */
+        /* 完全内联样式，不依赖外部资源 */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: radial-gradient(circle at 10% 20%, #0a0f2a, #03061a);
-            font-family: 'Segoe UI', 'Poppins', monospace;
+            font-family: system-ui, -apple-system, 'Segoe UI', monospace;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
         }
-        .glass-card {
-            max-width: 550px;
+        .card {
+            max-width: 500px;
             width: 100%;
-            background: rgba(20, 30, 55, 0.85);
-            backdrop-filter: blur(12px);
+            background: rgba(20, 30, 55, 0.9);
+            backdrop-filter: blur(10px);
             border-radius: 48px;
             padding: 30px 25px;
-            box-shadow: 0 25px 45px rgba(0,0,0,0.4);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
             border: 1px solid rgba(255,215,150,0.5);
         }
         h1 {
             text-align: center;
-            font-size: 2rem;
+            font-size: 1.8rem;
+            color: #ffd966;
             margin-bottom: 10px;
-            background: linear-gradient(135deg, #ffd966, #ffaa66);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
         }
         .sub {
             text-align: center;
@@ -57,7 +47,7 @@
             flex: 1;
             background: rgba(255,255,240,0.2);
             border: none;
-            padding: 8px;
+            padding: 10px;
             border-radius: 40px;
             font-weight: bold;
             color: white;
@@ -77,7 +67,7 @@
             padding: 14px 18px;
             border-radius: 60px;
             border: none;
-            background: rgba(255,255,245,0.9);
+            background: rgba(255,255,245,0.95);
             font-size: 1rem;
         }
         button {
@@ -101,12 +91,12 @@
             padding: 20px;
             margin-top: 15px;
         }
-        .pet-icon { font-size: 4.5rem; text-align: center; margin: 10px 0; }
-        .pet-name { font-size: 1.8rem; font-weight: bold; text-align: center; color: #ffecb3; }
-        .level-info { background: rgba(0,0,0,0.4); border-radius: 28px; padding: 15px; margin: 20px 0; }
+        .pet-icon { font-size: 4rem; text-align: center; margin: 10px 0; color: #ffaa66; }
+        .pet-name { font-size: 1.6rem; font-weight: bold; text-align: center; color: #ffecb3; }
+        .level-info { background: rgba(0,0,0,0.4); border-radius: 28px; padding: 15px; margin: 20px 0; color: #ffecb3; }
         .level-bar { background: #2c2c3a; border-radius: 30px; height: 12px; margin-top: 8px; }
         .level-fill { background: linear-gradient(90deg, #ffaa66, #ffd966); width: 0%; height: 100%; border-radius: 30px; }
-        .skill-card { background: rgba(255,230,200,0.15); border-radius: 24px; padding: 12px; margin: 10px 0; border-left: 4px solid #ffaa66; }
+        .skill-card { background: rgba(255,230,200,0.15); border-radius: 20px; padding: 10px; margin: 10px 0; border-left: 4px solid #ffaa66; color: #ffe6c9; }
         .error { text-align: center; color: #ffaa77; margin-top: 15px; }
         .message { text-align: center; color: #88ffaa; margin-top: 15px; }
         .footer { text-align: center; margin-top: 25px; font-size: 0.7rem; color: #88aaff; }
@@ -116,9 +106,9 @@
     </style>
 </head>
 <body>
-<div class="glass-card">
-    <h1><i class="fas fa-paw"></i> 星际宠物档案馆 <i class="fas fa-dragon"></i></h1>
-    <div class="sub">✨ 家长登录 · 查看孩子专属宠物档案 ✨</div>
+<div class="card">
+    <h1>🐾 星际宠物档案馆 🐉</h1>
+    <div class="sub">✨ 家长登录 · 查看孩子宠物档案 ✨</div>
 
     <div class="tab-bar">
         <button id="tabLoginBtn" class="tab-btn active">登录</button>
@@ -138,13 +128,13 @@
         <div class="input-group">
             <input type="email" id="regEmail" placeholder="家长邮箱">
             <input type="password" id="regPassword" placeholder="密码（至少6位）">
-            <input type="text" id="regStudentName" placeholder="孩子的真实姓名（必须与班级名单一致）">
+            <input type="text" id="regStudentName" placeholder="孩子的真实姓名（与班级名单一致）">
             <button id="registerBtn">注册</button>
         </div>
     </div>
 
     <div id="petPanel" class="hidden">
-        <div id="petResult" class="result-card"></div>
+        <div id="petResult" class="result-card">加载中...</div>
         <div class="flex-btns">
             <button id="logoutBtn" class="secondary-btn">退出登录</button>
         </div>
@@ -156,95 +146,202 @@
 </div>
 
 <script>
-    // Supabase 配置（使用 anon 公钥，不是 service_role）
-    const SUPABASE_URL = 'https://qiwpoeqxyffgnfhbsibk.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_7s1d64U0Yr9FZz65q3oDFA_9I-t-zPx';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    let currentStudent = null;
-    const MAX_LEVEL = 25;
-    const EXP_TABLE = [0];
-    let cumulative = 0;
-    for (let lv = 1; lv <= MAX_LEVEL; lv++) {
-        EXP_TABLE.push(cumulative);
-        if (lv === MAX_LEVEL) break;
-        let need = 150 + (lv - 1) * 30;
-        if (lv + 1 >= 5) need += 250;
-        cumulative += need;
-    }
-    function getNextExp(level, exp) { return level >= MAX_LEVEL ? exp : EXP_TABLE[level+1]; }
-
-    function renderPetInfo(pet) {
-        const level = pet.level, exp = pet.exp;
-        const nextExp = getNextExp(level, exp);
-        let expPercent = level < MAX_LEVEL ? ((exp - EXP_TABLE[level]) / (EXP_TABLE[level+1] - EXP_TABLE[level]) * 100) : 100;
-        if (isNaN(expPercent)) expPercent = 0;
-        let skillsHtml = pet.skill_cards && pet.skill_cards.length ? 
-            '<div><strong>技能卡</strong></div>' + pet.skill_cards.map(c => `<div class="skill-card"><strong>${c.name}</strong> - ${c.desc}<br><small>有效期至：${new Date(c.expireTime).toLocaleString()}</small></div>`).join('') :
-            '<div class="skill-card">暂无技能卡</div>';
-        document.getElementById('petResult').innerHTML = `
-            <div class="pet-icon"><i class="fas ${pet.pet_icon}"></i></div>
-            <div class="pet-name">${pet.pet_name}</div>
-            <div class="level-info">
-                <p><strong>等级：</strong> ${level}</p>
-                <p><strong>经验：</strong> ${exp} / ${nextExp}</p>
-                <div class="level-bar"><div class="level-fill" style="width: ${Math.min(expPercent, 100)}%;"></div></div>
-            </div>
-            ${skillsHtml}
-        `;
-    }
-
-    async function showPetPanel() {
-        document.getElementById('loginPanel').classList.add('hidden');
-        document.getElementById('registerPanel').classList.add('hidden');
-        document.getElementById('petPanel').classList.remove('hidden');
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) { logout(); return; }
-        const { data: profile } = await supabase.from('profiles').select('student_name').eq('id', user.id).single();
-        if (!profile) { document.getElementById('petResult').innerHTML = '<div class="error">未关联学生姓名，请联系老师。</div>'; return; }
-        currentStudent = profile.student_name;
-        const { data: pet } = await supabase.from('pets').select('*').eq('student_name', currentStudent).single();
-        if (!pet) { document.getElementById('petResult').innerHTML = '<div class="error">未找到宠物数据，请联系老师。</div>'; return; }
-        renderPetInfo(pet);
-    }
-
-    async function login() {
-        const email = document.getElementById('loginEmail').value.trim();
-        const password = document.getElementById('loginPassword').value;
-        const errorDiv = document.getElementById('errorMsg');
-        if (!email || !password) { errorDiv.innerHTML = '请输入邮箱和密码'; return; }
-        try {
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) throw error;
-            await showPetPanel();
-        } catch (error) { errorDiv.innerHTML = '登录失败：' + error.message; }
-    }
-
-    async function register() {
-        const email = document.getElementById('regEmail').value.trim();
-        const password = document.getElementById('regPassword').value;
-        const studentName = document.getElementById('regStudentName').value.trim();
-        const errorDiv = document.getElementById('errorMsg');
-        if (!email || !password || !studentName) { errorDiv.innerHTML = '请完整填写'; return; }
-        if (password.length < 6) { errorDiv.innerHTML = '密码至少6位'; return; }
-        try {
-            const { error } = await supabase.auth.signUp({ email, password, options: { data: { student_name: studentName } } });
-            if (error) throw error;
-            document.getElementById('successMsg').innerHTML = '注册成功！请返回登录。';
-            setTimeout(() => document.getElementById('tabLoginBtn').click(), 2000);
-        } catch (error) { errorDiv.innerHTML = '注册失败：' + error.message; }
-    }
-
-    async function logout() { await supabase.auth.signOut(); location.reload(); }
-    function showLoginTab() { document.getElementById('loginPanel').classList.remove('hidden'); document.getElementById('registerPanel').classList.add('hidden'); document.getElementById('tabLoginBtn').classList.add('active'); document.getElementById('tabRegisterBtn').classList.remove('active'); }
-    function showRegisterTab() { document.getElementById('loginPanel').classList.add('hidden'); document.getElementById('registerPanel').classList.remove('hidden'); document.getElementById('tabLoginBtn').classList.remove('active'); document.getElementById('tabRegisterBtn').classList.add('active'); }
-
-    document.getElementById('loginBtn').onclick = login;
-    document.getElementById('registerBtn').onclick = register;
-    document.getElementById('logoutBtn').onclick = logout;
-    document.getElementById('tabLoginBtn').onclick = showLoginTab;
-    document.getElementById('tabRegisterBtn').onclick = showRegisterTab;
-    (async () => { const { data: { user } } = await supabase.auth.getUser(); if (user) showPetPanel(); else showLoginTab(); })();
+    // 确保 Supabase SDK 加载完成后再执行
+    (function() {
+        // 等待 supabase 对象可用
+        function init() {
+            if (typeof supabase === 'undefined') {
+                console.warn('Supabase SDK 未加载，等待重试...');
+                setTimeout(init, 200);
+                return;
+            }
+            // Supabase 配置（使用 anon 公钥）
+            const SUPABASE_URL = 'https://qiwpoeqxyffgnfhbsibk.supabase.co';
+            const SUPABASE_ANON_KEY = 'sb_publishable_7s1d64U0Yr9FZz65q3oDFA_9I-t-zPx';
+            const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            
+            let currentStudent = null;
+            const MAX_LEVEL = 25;
+            const EXP_TABLE = [0];
+            let cumulative = 0;
+            for (let lv = 1; lv <= MAX_LEVEL; lv++) {
+                EXP_TABLE.push(cumulative);
+                if (lv === MAX_LEVEL) break;
+                let need = 150 + (lv - 1) * 30;
+                if (lv + 1 >= 5) need += 250;
+                cumulative += need;
+            }
+            function getNextExp(level, exp) { return level >= MAX_LEVEL ? exp : EXP_TABLE[level+1]; }
+            
+            function renderPetInfo(pet) {
+                const level = pet.level, exp = pet.exp;
+                const nextExp = getNextExp(level, exp);
+                let expPercent = level < MAX_LEVEL ? ((exp - EXP_TABLE[level]) / (EXP_TABLE[level+1] - EXP_TABLE[level]) * 100) : 100;
+                if (isNaN(expPercent)) expPercent = 0;
+                let skillsHtml = '';
+                if (pet.skill_cards && pet.skill_cards.length) {
+                    skillsHtml = '<div><strong>📜 技能卡</strong></div>';
+                    pet.skill_cards.forEach(c => {
+                        skillsHtml += `<div class="skill-card"><strong>${c.name}</strong> - ${c.desc}<br><small>⏰ ${new Date(c.expireTime).toLocaleString()}</small></div>`;
+                    });
+                } else {
+                    skillsHtml = '<div class="skill-card">暂无技能卡</div>';
+                }
+                document.getElementById('petResult').innerHTML = `
+                    <div class="pet-icon">🐾 ${pet.pet_icon === 'fa-horse' ? '🐴' : '🐉'}</div>
+                    <div class="pet-name">${pet.pet_name}</div>
+                    <div class="level-info">
+                        <p><strong>等级：</strong> ${level}</p>
+                        <p><strong>经验：</strong> ${exp} / ${nextExp}</p>
+                        <div class="level-bar"><div class="level-fill" style="width: ${Math.min(expPercent, 100)}%;"></div></div>
+                    </div>
+                    ${skillsHtml}
+                `;
+            }
+            
+            async function showPetPanel() {
+                document.getElementById('loginPanel').classList.add('hidden');
+                document.getElementById('registerPanel').classList.add('hidden');
+                document.getElementById('petPanel').classList.remove('hidden');
+                document.getElementById('petResult').innerHTML = '加载中...';
+                const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+                if (userError || !user) {
+                    logout();
+                    return;
+                }
+                const { data: profile, error: profileError } = await supabaseClient
+                    .from('profiles')
+                    .select('student_name')
+                    .eq('id', user.id)
+                    .single();
+                if (profileError || !profile) {
+                    document.getElementById('petResult').innerHTML = '<div class="error">未关联学生姓名，请联系老师。</div>';
+                    return;
+                }
+                currentStudent = profile.student_name;
+                const { data: pet, error: petError } = await supabaseClient
+                    .from('pets')
+                    .select('*')
+                    .eq('student_name', currentStudent)
+                    .single();
+                if (petError) {
+                    document.getElementById('petResult').innerHTML = '<div class="error">未找到宠物数据，请联系老师。</div>';
+                    return;
+                }
+                renderPetInfo(pet);
+            }
+            
+            async function login() {
+                const email = document.getElementById('loginEmail').value.trim();
+                const password = document.getElementById('loginPassword').value;
+                const errorDiv = document.getElementById('errorMsg');
+                errorDiv.innerHTML = '';
+                if (!email || !password) {
+                    errorDiv.innerHTML = '请输入邮箱和密码';
+                    return;
+                }
+                try {
+                    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+                    await showPetPanel();
+                } catch (error) {
+                    errorDiv.innerHTML = '登录失败：' + error.message;
+                }
+            }
+            
+            async function register() {
+                const email = document.getElementById('regEmail').value.trim();
+                const password = document.getElementById('regPassword').value;
+                const studentName = document.getElementById('regStudentName').value.trim();
+                const errorDiv = document.getElementById('errorMsg');
+                const successDiv = document.getElementById('successMsg');
+                errorDiv.innerHTML = '';
+                successDiv.innerHTML = '';
+                if (!email || !password || !studentName) {
+                    errorDiv.innerHTML = '请完整填写邮箱、密码和孩子姓名';
+                    return;
+                }
+                if (password.length < 6) {
+                    errorDiv.innerHTML = '密码至少6位';
+                    return;
+                }
+                try {
+                    const { error } = await supabaseClient.auth.signUp({
+                        email,
+                        password,
+                        options: { data: { student_name: studentName } }
+                    });
+                    if (error) throw error;
+                    successDiv.innerHTML = '注册成功！请返回登录页面使用邮箱登录。';
+                    setTimeout(() => {
+                        document.getElementById('tabLoginBtn').click();
+                    }, 2000);
+                } catch (error) {
+                    errorDiv.innerHTML = '注册失败：' + error.message;
+                }
+            }
+            
+            async function logout() {
+                await supabaseClient.auth.signOut();
+                currentStudent = null;
+                document.getElementById('loginPanel').classList.remove('hidden');
+                document.getElementById('registerPanel').classList.add('hidden');
+                document.getElementById('petPanel').classList.add('hidden');
+                document.getElementById('loginEmail').value = '';
+                document.getElementById('loginPassword').value = '';
+                document.getElementById('tabLoginBtn').classList.add('active');
+                document.getElementById('tabRegisterBtn').classList.remove('active');
+                document.getElementById('errorMsg').innerHTML = '';
+                document.getElementById('successMsg').innerHTML = '';
+            }
+            
+            function showLoginTab() {
+                document.getElementById('loginPanel').classList.remove('hidden');
+                document.getElementById('registerPanel').classList.add('hidden');
+                document.getElementById('tabLoginBtn').classList.add('active');
+                document.getElementById('tabRegisterBtn').classList.remove('active');
+                document.getElementById('errorMsg').innerHTML = '';
+                document.getElementById('successMsg').innerHTML = '';
+            }
+            function showRegisterTab() {
+                document.getElementById('loginPanel').classList.add('hidden');
+                document.getElementById('registerPanel').classList.remove('hidden');
+                document.getElementById('tabLoginBtn').classList.remove('active');
+                document.getElementById('tabRegisterBtn').classList.add('active');
+                document.getElementById('errorMsg').innerHTML = '';
+                document.getElementById('successMsg').innerHTML = '';
+            }
+            
+            async function checkSession() {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (user) {
+                    await showPetPanel();
+                } else {
+                    showLoginTab();
+                }
+            }
+            
+            document.getElementById('loginBtn').onclick = login;
+            document.getElementById('registerBtn').onclick = register;
+            document.getElementById('logoutBtn').onclick = logout;
+            document.getElementById('tabLoginBtn').onclick = showLoginTab;
+            document.getElementById('tabRegisterBtn').onclick = showRegisterTab;
+            
+            checkSession();
+        }
+        
+        // 如果 supabase 已存在，直接初始化；否则等待加载
+        if (window.supabase) {
+            init();
+        } else {
+            window.addEventListener('load', function() {
+                if (window.supabase) init();
+                else console.error('Supabase SDK 加载失败');
+            });
+        }
+    })();
 </script>
+<!-- 确保 Supabase SDK 从可靠 CDN 加载 -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </body>
 </html>
