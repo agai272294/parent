@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>✨ 星际宠物档案馆 · 家长登录 ✨</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: radial-gradient(circle at 10% 20%, #0a0f2a, #03061a);
+            font-family: 'Segoe UI', 'Poppins', monospace;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .glass-card {
+            max-width: 550px;
+            width: 100%;
+            background: rgba(20, 30, 55, 0.65);
+            backdrop-filter: blur(12px);
+            border-radius: 48px;
+            padding: 30px 25px;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.4), 0 0 0 2px rgba(255,200,100,0.3);
+            border: 1px solid rgba(255,215,150,0.5);
+        }
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #ffd966, #ffaa66);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .sub {
+            text-align: center;
+            color: #bbddff;
+            margin-bottom: 25px;
+            font-size: 0.85rem;
+        }
+        .tab-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            flex: 1;
+            background: rgba(255,255,240,0.2);
+            border: none;
+            padding: 8px;
+            border-radius: 40px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .tab-btn.active {
+            background: #ffb347;
+            color: #2c1a0e;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        input {
+            padding: 14px 18px;
+            border-radius: 60px;
+            border: none;
+            background: rgba(255,255,245,0.9);
+            font-size: 1rem;
+            outline: none;
+            font-weight: 500;
+        }
+        button {
+            background: linear-gradient(145deg, #ffb347, #ff8c42);
+            border: none;
+            padding: 12px;
+            border-radius: 60px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 0 #b87e3f;
+            width: 100%;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #b87e3f;
+        }
+        .secondary-btn {
+            background: #4a5a7a;
+            box-shadow: 0 4px 0 #2c3e50;
+            margin-top: 10px;
+        }
+        .result-card {
+            background: rgba(0,0,0,0.5);
+            border-radius: 32px;
+            padding: 20px;
+            margin-top: 15px;
+            backdrop-filter: blur(4px);
+            border: 1px solid #ffb882;
+        }
+        .pet-icon {
+            font-size: 4.5rem;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .pet-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-align: center;
+            color: #ffecb3;
+        }
+        .level-info {
+            background: rgba(0,0,0,0.4);
+            border-radius: 28px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .level-bar {
+            background: #2c2c3a;
+            border-radius: 30px;
+            height: 12px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        .level-fill {
+            background: linear-gradient(90deg, #ffaa66, #ffd966);
+            width: 0%;
+            height: 100%;
+            border-radius: 30px;
+            transition: width 0.5s;
+        }
+        .skill-card {
+            background: rgba(255,230,200,0.15);
+            border-radius: 24px;
+            padding: 12px;
+            margin: 10px 0;
+            border-left: 4px solid #ffaa66;
+            backdrop-filter: blur(4px);
+        }
+        .error {
+            text-align: center;
+            color: #ffaa77;
+            margin-top: 15px;
+        }
+        .message {
+            text-align: center;
+            color: #88ffaa;
+            margin-top: 15px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 0.7rem;
+            color: #88aaff;
+        }
+        .hidden {
+            display: none;
+        }
+        .flex-btns {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .flex-btns button {
+            flex: 1;
+        }
+        .hint {
+            font-size: 0.7rem;
+            color: #ffdd99;
+            margin-top: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="glass-card">
+    <h1><i class="fas fa-paw"></i> 星际宠物档案馆 <i class="fas fa-dragon"></i></h1>
+    <div class="sub">✨ 家长登录 · 查看孩子专属宠物档案 ✨</div>
+
+    <!-- 标签页切换 -->
+    <div class="tab-bar">
+        <button id="tabLoginBtn" class="tab-btn active">登录</button>
+        <button id="tabRegisterBtn" class="tab-btn">注册账号</button>
+    </div>
+
+    <!-- 登录界面 -->
+    <div id="loginPanel">
+        <div class="input-group">
+            <input type="email" id="loginEmail" placeholder="家长邮箱（注册时填写）" autocomplete="email">
+            <input type="password" id="loginPassword" placeholder="密码">
+            <button id="loginBtn">登录</button>
+        </div>
+        <div class="hint">首次使用请先注册账号，注册时需要填写孩子真实姓名。</div>
+    </div>
+
+    <!-- 注册界面 -->
+    <div id="registerPanel" class="hidden">
+        <div class="input-group">
+            <input type="email" id="regEmail" placeholder="家长邮箱" autocomplete="email">
+            <input type="password" id="regPassword" placeholder="密码（至少6位）">
+            <input type="text" id="regStudentName" placeholder="孩子的真实姓名（必须与班级名单一致）">
+            <button id="registerBtn">注册</button>
+            <div class="hint">注册成功后请返回登录。孩子姓名请务必准确，否则无法查看宠物。</div>
+        </div>
+    </div>
+
+    <!-- 宠物展示界面（登录成功后） -->
+    <div id="petPanel" class="hidden">
+        <div id="petResult" class="result-card"></div>
+        <div class="flex-btns">
+            <button id="logoutBtn" class="secondary-btn">退出登录</button>
+        </div>
+    </div>
+
+    <div id="errorMsg" class="error"></div>
+    <div id="successMsg" class="message"></div>
+    <div class="footer">数据由班主任定期更新 | 如有疑问请联系老师</div>
+</div>
+
+<script>
+    // ==================== Supabase 配置 ====================
+    const SUPABASE_URL = 'https://qiwpoeqxyffgnfhbsibk.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_7s1d64U0Yr9FZz65q3oDFA_9I-t-zPx';
+    // =====================================================
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // 全局变量
+    let currentStudent = null;
+
+    // ========== 经验表：与 classroom_manager 完全一致的动态生成逻辑 ==========
+    const MAX_LEVEL = 25;
+    const EXP_TABLE = [0];
+    let cumulative = 0;
+    for (let lv = 1; lv <= MAX_LEVEL; lv++) {
+        EXP_TABLE.push(cumulative);
+        if (lv === MAX_LEVEL) break;
+        let need = 150 + (lv - 1) * 30;
+        if (lv + 1 >= 5) need += 250;
+        cumulative += need;
+    }
+    // =================================================================
+
+    function getNextExp(level, exp) {
+        if (level >= MAX_LEVEL) return exp;
+        return EXP_TABLE[level + 1];
+    }
+
+    // 渲染宠物信息
+    function renderPetInfo(pet) {
+        const level = pet.level;
+        const exp = pet.exp;
+        const nextExp = getNextExp(level, exp);
+        const expPercent = level < MAX_LEVEL ? ((exp - EXP_TABLE[level]) / (EXP_TABLE[level+1] - EXP_TABLE[level]) * 100) : 100;
+
+        let skillsHtml = '';
+        if (pet.skill_cards && pet.skill_cards.length) {
+            skillsHtml = '<div style="margin-top:15px;"><strong><i class="fas fa-ticket-alt"></i> 技能卡</strong></div>';
+            pet.skill_cards.forEach(card => {
+                skillsHtml += `
+                    <div class="skill-card">
+                        <strong>${card.name}</strong> - ${card.desc}<br>
+                        <small>有效期至：${new Date(card.expireTime).toLocaleString()}</small>
+                    </div>
+                `;
+            });
+        } else {
+            skillsHtml = '<div class="skill-card">暂无技能卡</div>';
+        }
+
+        const html = `
+            <div class="pet-icon"><i class="fas ${pet.pet_icon}"></i></div>
+            <div class="pet-name">${pet.pet_name}</div>
+            <div class="level-info">
+                <p><strong>等级：</strong> ${level}</p>
+                <p><strong>经验：</strong> ${exp} / ${nextExp}</p>
+                <div class="level-bar"><div class="level-fill" style="width: ${Math.min(expPercent, 100)}%;"></div></div>
+            </div>
+            ${skillsHtml}
+        `;
+        document.getElementById('petResult').innerHTML = html;
+    }
+
+    // 显示宠物面板
+    async function showPetPanel() {
+        document.getElementById('loginPanel').classList.add('hidden');
+        document.getElementById('registerPanel').classList.add('hidden');
+        document.getElementById('petPanel').classList.remove('hidden');
+        document.getElementById('errorMsg').innerHTML = '';
+        document.getElementById('successMsg').innerHTML = '';
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            logout();
+            return;
+        }
+        const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('student_name')
+            .eq('id', user.id)
+            .single();
+        if (profileError || !profile) {
+            console.error('获取学生姓名失败', profileError);
+            document.getElementById('petResult').innerHTML = '<div class="error">未关联学生姓名，请联系老师。</div>';
+            return;
+        }
+        currentStudent = profile.student_name;
+
+        const { data: pet, error: petError } = await supabase
+            .from('pets')
+            .select('*')
+            .eq('student_name', currentStudent)
+            .single();
+        if (petError) {
+            console.error('获取宠物失败', petError);
+            document.getElementById('petResult').innerHTML = '<div class="error">未找到宠物数据，请联系老师。</div>';
+            return;
+        }
+        renderPetInfo(pet);
+    }
+
+    // 登录函数
+    async function login() {
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        const errorDiv = document.getElementById('errorMsg');
+        errorDiv.innerHTML = '';
+
+        if (!email || !password) {
+            errorDiv.innerHTML = '请输入邮箱和密码';
+            return;
+        }
+
+        try {
+            const { error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+            if (error) throw error;
+            await showPetPanel();
+        } catch (error) {
+            errorDiv.innerHTML = '登录失败：' + error.message;
+        }
+    }
+
+    // 注册函数
+    async function register() {
+        const email = document.getElementById('regEmail').value.trim();
+        const password = document.getElementById('regPassword').value;
+        const studentName = document.getElementById('regStudentName').value.trim();
+        const errorDiv = document.getElementById('errorMsg');
+        const successDiv = document.getElementById('successMsg');
+        errorDiv.innerHTML = '';
+        successDiv.innerHTML = '';
+
+        if (!email || !password || !studentName) {
+            errorDiv.innerHTML = '请完整填写邮箱、密码和孩子姓名';
+            return;
+        }
+        if (password.length < 6) {
+            errorDiv.innerHTML = '密码至少需要6位';
+            return;
+        }
+
+        try {
+            const { error } = await supabase.auth.signUp({
+                email: email,
+                password: password,
+                options: {
+                    data: {
+                        student_name: studentName
+                    }
+                }
+            });
+            if (error) throw error;
+            successDiv.innerHTML = '注册成功！请返回登录页面使用邮箱登录。';
+            setTimeout(() => {
+                document.getElementById('tabLoginBtn').click();
+            }, 2000);
+        } catch (error) {
+            errorDiv.innerHTML = '注册失败：' + error.message;
+        }
+    }
+
+    // 退出登录
+    async function logout() {
+        await supabase.auth.signOut();
+        currentStudent = null;
+        document.getElementById('loginPanel').classList.remove('hidden');
+        document.getElementById('registerPanel').classList.add('hidden');
+        document.getElementById('petPanel').classList.add('hidden');
+        document.getElementById('errorMsg').innerHTML = '';
+        document.getElementById('successMsg').innerHTML = '';
+        document.getElementById('loginEmail').value = '';
+        document.getElementById('loginPassword').value = '';
+        document.getElementById('tabLoginBtn').classList.add('active');
+        document.getElementById('tabRegisterBtn').classList.remove('active');
+    }
+
+    function showLoginTab() {
+        document.getElementById('loginPanel').classList.remove('hidden');
+        document.getElementById('registerPanel').classList.add('hidden');
+        document.getElementById('tabLoginBtn').classList.add('active');
+        document.getElementById('tabRegisterBtn').classList.remove('active');
+        document.getElementById('errorMsg').innerHTML = '';
+        document.getElementById('successMsg').innerHTML = '';
+    }
+    function showRegisterTab() {
+        document.getElementById('loginPanel').classList.add('hidden');
+        document.getElementById('registerPanel').classList.remove('hidden');
+        document.getElementById('tabLoginBtn').classList.remove('active');
+        document.getElementById('tabRegisterBtn').classList.add('active');
+        document.getElementById('errorMsg').innerHTML = '';
+        document.getElementById('successMsg').innerHTML = '';
+    }
+
+    async function checkSession() {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            await showPetPanel();
+        } else {
+            showLoginTab();
+        }
+    }
+
+    function bindEvents() {
+        document.getElementById('loginBtn').addEventListener('click', login);
+        document.getElementById('registerBtn').addEventListener('click', register);
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+        document.getElementById('tabLoginBtn').addEventListener('click', showLoginTab);
+        document.getElementById('tabRegisterBtn').addEventListener('click', showRegisterTab);
+        document.getElementById('loginPassword').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') login();
+        });
+        document.getElementById('regPassword').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') register();
+        });
+    }
+
+    bindEvents();
+    checkSession();
+</script>
+</body>
+</html>
